@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FuelWyse — Fuel & Generator Cost Calculator for Nigeria</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+
+  <meta name="description" content="Estimate fuel and generator running costs in Nigeria. Fast, simple, transparent results with presets, instant updates, and shareable estimates." />
+  <meta name="theme-color" content="#0b1220" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+<header class="topbar">
+  <div class="container topbar__inner">
+    <div class="brand">
+      <div class="brand__logo">
+        <img src="assets/logo.png" alt="FuelWyse logo">
+      </div>
+      
+      <div class="brand__text">
+        <div class="brand__name">FuelWyse</div>
+        <div class="brand__tag">Fuel & Generator Cost Calculator — Nigeria</div>
+      </div>
+    </div>
+
+    <div class="topbar__actions">
+      <div class="segmented" role="group" aria-label="Theme switch">
+        <button class="segmented__btn" data-theme-btn="light">Light</button>
+        <button class="segmented__btn" data-theme-btn="dark">Dark</button>
+        <button class="segmented__btn" data-theme-btn="midnight">Midnight</button>
+      </div>
+      <button class="btn btn--ghost" id="btnReset">Reset</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero__left">
+    <h1>Estimate your fuel & generator costs in seconds.</h1>
+    <p class="muted">
+      Results update instantly. Presets help you start fast, and you can fine-tune anything.
+      <span class="pill">Estimate tool</span>
+    </p>
+  </div>
+
+  <div class="hero__right">
+    <div class="card ad-slot">
+      <div class="ad-slot__label">Ad Placeholder</div>
+      <div class="ad-slot__hint">Reserved space for future ads / sponsorship</div>
+    </div>
+  </div>
+</section>
+
+<!-- MODE SWITCH -->
+<section class="card">
+  <div class="card__head">
+    <h2 class="card__title">1) What are you calculating?</h2>
+    <div class="muted small">Your last choice is saved.</div>
+  </div>
+
+  <div class="mode-switch" role="tablist">
+    <button class="mode-switch__btn" id="tabFuel" aria-selected="true">
+      🚗 <strong>Fuel Cost</strong>
+      <span class="muted small">Vehicle / general use</span>
+    </button>
+    <button class="mode-switch__btn" id="tabGen" aria-selected="false">
+      🔌 <strong>Generator Cost</strong>
+      <span class="muted small">Fuel usage estimate</span>
+    </button>
+  </div>
+</section>
+
+<!-- ================= FUEL MODE ================= -->
+<section class="grid" id="panelFuel">
+
+<!-- Fuel Inputs -->
+<div class="card">
+  <div class="card__head">
+    <h2 class="card__title">2) How often do you use it?</h2>
+    <div class="muted small">This controls the monthly estimate automatically.</div>
+  </div>
+
+  <div class="field">
+    <label for="fuelUsage">Usage type</label>
+    <select id="fuelUsage">
+      <option value="oneoff">One-off</option>
+      <option value="daily" selected>Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <div class="row row--between">
+      <label for="fuelDistance">Distance</label>
+      <div class="muted small"><span id="fuelDistanceLabel">30</span> km</div>
+    </div>
+
+    <input id="fuelDistance" type="range" min="1" max="600" />
+    <div class="quick">
+      <button class="chip" data-quick-distance="5">5</button>
+      <button class="chip" data-quick-distance="10">10</button>
+      <button class="chip" data-quick-distance="30">30</button>
+      <button class="chip" data-quick-distance="60">60</button>
+      <button class="chip" data-quick-distance="120">120</button>
+    </div>
+
+    <div class="inline">
+      <input id="fuelDistanceManual" type="number" step="0.1" placeholder="Type distance (km)" />
+      <button class="btn btn--ghost" id="btnFuelDistanceApply">Apply</button>
+    </div>
+  </div>
+
+  <hr class="sep" />
+
+  <div class="field">
+    <label for="vehiclePreset">3) Choose a vehicle preset (optional)</label>
+    <select id="vehiclePreset">
+      <option value="small">Small car</option>
+      <option value="sedan">Sedan</option>
+      <option value="suv">SUV</option>
+      <option value="bus">Bus</option>
+      <option value="truck">Truck</option>
+      <option value="custom">Custom</option>
+    </select>
+    <div class="help">Presets auto-fill efficiency, but nothing is locked.</div>
+  </div>
+
+  <div class="two">
+    <div class="field">
+      <div class="row row--between">
+        <label for="fuelEfficiency">Fuel efficiency (km/L)</label>
+        <button class="link" id="btnFuelHelpEfficiency">I don’t know</button>
+      </div>
+      <input id="fuelEfficiency" type="number" step="0.1" />
+      <div class="help" id="fuelEfficiencyHint" hidden></div>
+    </div>
+
+    <div class="field">
+      <div class="row row--between">
+        <label for="fuelPrice">Fuel price (₦/L)</label>
+        <button class="link" id="btnFuelHelpPrice">I don’t know</button>
+      </div>
+      <input id="fuelPrice" type="number" />
+      <div class="help" id="fuelPriceHint" hidden></div>
+    </div>
+  </div>
+
+  <div class="card note">
+    <div class="note__title">Assumptions & transparency</div>
+    <ul class="note__list">
+      <li>Fuel needed = distance ÷ efficiency.</li>
+      <li>Monthly conversion: Daily × 30, Weekly × 4.345.</li>
+    </ul>
+    <div class="disclaimer">This is an estimate. Actual fuel usage and costs may vary.</div>
+  </div>
+</div>
+
+<!-- Fuel Results -->
+<div class="card">
+  <div class="card__head">
+    <h2 class="card__title">Results (Fuel)</h2>
+    <div class="muted small">Updates instantly.</div>
+  </div>
+
+  <div class="heroResult">
+    <div class="heroResult__label">Estimated monthly fuel cost</div>
+    <div class="heroResult__value" id="fuelHero">₦0</div>
+    <div class="heroResult__range muted" id="fuelRange"></div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div>Fuel/month</div><strong id="fuelLitres">0 L</strong></div>
+    <div class="kpi"><div>Cost/km</div><strong id="fuelCostPerKm">₦0</strong></div>
+    <div class="kpi"><div>Trips/month</div><strong id="fuelTrips">—</strong></div>
+  </div>
+
+  <div class="breakdown">
+    <div><span>Daily</span><strong id="fuelDaily">₦0</strong></div>
+    <div><span>Weekly</span><strong id="fuelWeekly">₦0</strong></div>
+    <div><span>Monthly</span><strong id="fuelMonthly">₦0</strong></div>
+    <div><span>Yearly</span><strong id="fuelYearly">₦0</strong></div>
+  </div>
+
+  <div class="assumptions" id="fuelAssumptions"></div>
+
+  <div class="actions">
+    <button class="btn" id="btnFuelSetBaseline">Set as “Before”</button>
+    <button class="btn btn--ghost" id="btnFuelClearBaseline">Clear comparison</button>
+  </div>
+
+  <div id="fuelCompare" hidden></div>
+
+  <div class="actions">
+    <button class="btn btn--ghost" id="btnFuelCopyText">Copy estimate text</button>
+    <button class="btn btn--ghost" id="btnFuelCopyUrl">Copy share link</button>
+    <span class="muted small" id="fuelCopyStatus"></span>
+  </div>
+
+  <div class="card ad-slot ad-slot--thin">
+    <div class="ad-slot__label">Affiliate / Recommendation Placeholder</div>
+    <div class="ad-slot__hint">Future: fuel-saving tips, oils, tools.</div>
+  </div>
+</div>
+</section>
+
+<!-- ================= GENERATOR MODE ================= -->
+<section class="grid" id="panelGen" hidden>
+
+<!-- Generator Inputs -->
+<div class="card">
+  <div class="card__head">
+    <h2 class="card__title">2) How do you use your generator?</h2>
+    <div class="muted small">Pick a pattern to get smart defaults.</div>
+  </div>
+
+  <div class="field">
+    <label for="genPattern">Usage pattern</label>
+    <select id="genPattern">
+      <option value="occasional">Occasional</option>
+      <option value="daily" selected>Daily</option>
+      <option value="business">Business</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="genPreset">Generator preset</label>
+    <select id="genPreset">
+      <option value="0.8">0.8kVA</option>
+      <option value="1.6">1.6kVA</option>
+      <option value="2.5">2.5kVA</option>
+      <option value="3.5">3.5kVA</option>
+      <option value="5">5kVA</option>
+      <option value="custom">Custom</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <div class="row row--between">
+      <label for="genHours">Hours used per day</label>
+      <div class="muted small"><span id="genHoursLabel">4</span> hrs</div>
+    </div>
+    <input id="genHours" type="range" min="0.5" max="24" step="0.5" />
+    <div class="quick">
+      <button class="chip" data-quick-hours="1">1</button>
+      <button class="chip" data-quick-hours="2">2</button>
+      <button class="chip" data-quick-hours="4">4</button>
+      <button class="chip" data-quick-hours="8">8</button>
+      <button class="chip" data-quick-hours="12">12</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Load level</label>
+    <div class="segmented">
+      <button data-load="low">Low</button>
+      <button data-load="medium">Medium</button>
+      <button data-load="high">High</button>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="field">
+      <div class="row row--between">
+        <label for="genLph">Litres per hour (L/hr)</label>
+        <button class="link" id="btnGenHelpLph">I don’t know</button>
+      </div>
+      <input id="genLph" type="number" step="0.01" />
+      <div class="help" id="genLphHint" hidden></div>
+    </div>
+
+    <div class="field">
+      <div class="row row--between">
+        <label for="genFuelPrice">Fuel price (₦/L)</label>
+        <button class="link" id="btnGenHelpPrice">I don’t know</button>
+      </div>
+      <input id="genFuelPrice" type="number" />
+      <div class="help" id="genPriceHint" hidden></div>
+    </div>
+  </div>
+
+  <div class="card note">
+    <div class="note__title">Assumptions & transparency</div>
+    <ul class="note__list">
+      <li>Monthly usage depends on your selected pattern.</li>
+      <li>Litres/hour varies by generator size and load.</li>
+    </ul>
+    <div class="disclaimer">This is an estimate. Actual generator usage may vary.</div>
+  </div>
+</div>
+
+<!-- Generator Results -->
+<div class="card">
+  <div class="card__head">
+    <h2 class="card__title">Results (Generator)</h2>
+    <div class="muted small">Updates instantly.</div>
+  </div>
+
+  <div class="heroResult">
+    <div class="heroResult__label">Estimated monthly generator cost</div>
+    <div class="heroResult__value" id="genHero">₦0</div>
+    <div class="heroResult__range muted" id="genRange"></div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div>Fuel/day</div><strong id="genLitresDay">0 L</strong></div>
+    <div class="kpi"><div>Cost/hour</div><strong id="genCostHour">₦0</strong></div>
+    <div class="kpi"><div>Days/month</div><strong id="genDaysMonth">—</strong></div>
+  </div>
+
+  <div class="breakdown">
+    <div><span>Daily</span><strong id="genDaily">₦0</strong></div>
+    <div><span>Weekly</span><strong id="genWeekly">₦0</strong></div>
+    <div><span>Monthly</span><strong id="genMonthly">₦0</strong></div>
+    <div><span>Yearly</span><strong id="genYearly">₦0</strong></div>
+  </div>
+
+  <div class="assumptions" id="genAssumptions"></div>
+
+  <div class="actions">
+    <button class="btn" id="btnGenSetBaseline">Set as “Before”</button>
+    <button class="btn btn--ghost" id="btnGenClearBaseline">Clear comparison</button>
+  </div>
+
+  <div id="genCompare" hidden></div>
+
+  <div class="actions">
+    <button class="btn btn--ghost" id="btnGenCopyText">Copy estimate text</button>
+    <button class="btn btn--ghost" id="btnGenCopyUrl">Copy share link</button>
+    <span class="muted small" id="genCopyStatus"></span>
+  </div>
+
+  <div class="card ad-slot ad-slot--thin">
+    <div class="ad-slot__label">Your Product Placeholder</div>
+    <div class="ad-slot__hint">Future: guides, tools, maintenance checklists.</div>
+  </div>
+</div>
+</section>
+
+<!-- SEO / CONTENT -->
+<section class="content">
+  <div class="card">
+    <h2>How fuel cost is calculated</h2>
+    <p>Fuel cost is estimated from distance, fuel efficiency, and fuel price.</p>
+
+    <h2>How much fuel does a generator use?</h2>
+    <p>Generator fuel usage depends on size, load, and hours of operation.</p>
+
+    <h2>How to reduce fuel & generator costs</h2>
+    <ul>
+      <li>Maintain your vehicle and generator regularly.</li>
+      <li>Avoid unnecessary load.</li>
+      <li>Compare scenarios before making changes.</li>
+    </ul>
+
+    <h2>FAQ</h2>
+    <details>
+      <summary>Is this an official calculator?</summary>
+      <p>No. FuelWyse provides estimates only.</p>
+    </details>
+    <details>
+      <summary>Can I edit preset values?</summary>
+      <p>Yes. Presets only auto-fill; nothing is locked.</p>
+    </details>
+
+    <p class="disclaimer big">
+      This is an estimate. Actual fuel usage and costs may vary.
+    </p>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="muted small">
+    FuelWyse — built for clarity, speed, and trust.
+  </div>
+</footer>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
